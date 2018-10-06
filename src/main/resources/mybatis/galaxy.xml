@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.siwei.worldCreator.GalaxyMapper">
+
+	<select id="selectById" resultType="Galaxy">
+		select * from galaxy where id
+		= #{id}
+	</select>
+	<insert id="insertGalaxy">
+		insert into
+		galaxy(id,x,y,up,down,product)values(#{id},#{x},#{y},#{up},#{down},#{product})
+	</insert>
+
+	<update id="updateGalaxy">
+	</update>
+
+	<delete id="deleteGalaxy">
+	</delete>
+
+	<select id="selectAllGalaxy" resultType="Galaxy">
+		select * from galaxy
+	</select>
+</mapper>
