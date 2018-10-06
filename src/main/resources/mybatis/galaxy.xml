@@ -8,6 +8,11 @@
 		select * from galaxy where id
 		= #{id}
 	</select>
+
+	<select id="selectByXY" resultType="Galaxy">
+		select * from galaxy where x=#{x} and y=#{y}
+	</select>
+
 	<insert id="insertGalaxy">
 		insert into
 		galaxy(id,x,y,up,down,product)values(#{id},#{x},#{y},#{up},#{down},#{product})

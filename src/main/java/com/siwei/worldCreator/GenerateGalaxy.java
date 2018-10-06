@@ -1,5 +1,6 @@
 package com.siwei.worldCreator;
 
+import java.awt.CheckboxMenuItem;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
@@ -11,58 +12,60 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class GenerateGalaxy extends Thread {
-	private int id;
 	SqlSession session;
+	GalaxyMapper galaxyMapper;
+	SqlSessionFactory sessionFactory;
 
 	public GenerateGalaxy() {
 		System.out.println("GenerateGalaxy.GenerateGalaxy()");
-		id = 0;
 		Reader reader;
 		try {
 			reader = Resources.getResourceAsReader("mybatis-config.xml");
-			SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);
+			sessionFactory = new SqlSessionFactoryBuilder().build(reader);
 			session = sessionFactory.openSession();
-			List<Item> cList = session.selectList("selectAllSources");
-			for (Item item : cList) {
-				System.out.println(item.getId());
-			}
 			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		galaxyMapper = session.getMapper(GalaxyMapper.class);
 	}
 
-	private Galaxy productGalaxy() {
-		Galaxy galaxy = new Galaxy();
-		Random random = new Random();
-		galaxy.setId(id++);
-		galaxy.setX(random.nextInt(1000000) + 1);
-		galaxy.setY(random.nextInt(1000000) + 1);
-		galaxy.setUp("");
-		galaxy.setDown("");
-		return galaxy;
+	private Boolean CheckItem(Galaxy galaxy) {
+		Galaxy galaxy2 = galaxyMapper.selectById(galaxy.getId());
+		if (galaxy2 != null) {
+			System.out.println("id " + galaxy2.getId() + " is already exist");
+			return false;
+		}
+
+		Galaxy galaxy3 = galaxyMapper.selectByXY(galaxy.getX(), galaxy.getY());
+		if (galaxy3 != null) {
+			System.out.println("X:" + galaxy.getX() + " Y:" + galaxy.getY() + " is already exist, new id is "
+					+ galaxy.getId() + " old id is " + galaxy3.getId());
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public void run() {
 		this.setName("GenerateGalaxy");
-		GalaxyMapper galaxyMapper = session.getMapper(GalaxyMapper.class);
 		ItemFactory itemFactory = new ItemFactory();
 		while (true) {
 			try {
 				Galaxy galaxy = (Galaxy) itemFactory.productItem(Galaxy.class);
-				Galaxy galaxy2 = galaxyMapper.selectById(galaxy.getId());
-				if (galaxy2 != null) {
-					System.out.println("id " + galaxy2.getId() + " is already exist");
+				session = sessionFactory.openSession();
+				if (!CheckItem(galaxy)) {
 					continue;
 				}
 				galaxyMapper.insertGalaxy(galaxy);
 				session.commit();
 				Thread.sleep(3600000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				session.rollback();
 				e.printStackTrace();
+			} finally {
+				session.close();
 			}
 		}
 	}
