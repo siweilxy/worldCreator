@@ -3,9 +3,9 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.siwei.worldCreator.Source">
-	<insert id="insertSources">
+	<insert id="insertSources" useGeneratedKeys="true" keyProperty="id">
 		insert into
-		sources(id,x,y,up,down)values(#{id},#{x},#{y},#{up},#{down})
+		sources(x,y,up,down)values(#{x},#{y},#{up},#{down})
 	</insert>
 	<update id="updateSources">
 	</update>

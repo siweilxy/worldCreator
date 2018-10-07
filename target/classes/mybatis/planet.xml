@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.siwei.worldCreator.PlanetMapper">
+
+	<select id="selectById" resultType="Planet">
+		select * from planet where id
+		= #{id}
+	</select>
+
+	<select id="selectByXY" resultType="Planet">
+		select * from planet where x=#{x} and y=#{y}
+	</select>
+
+	<insert id="insertPlanet" useGeneratedKeys="true" keyProperty="id">
+		insert into
+		planet(x,y,up,down,product)values(#{x},#{y},#{up},#{down},#{product})
+	</insert>
+
+	<update id="updatePlanet">
+	</update>
+
+	<delete id="deletePlanet">
+	</delete>
+
+	<select id="selectAllPlanet" resultType="Planet">
+		select * from planet
+	</select>
+</mapper>

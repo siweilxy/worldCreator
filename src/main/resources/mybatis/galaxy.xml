@@ -13,9 +13,9 @@
 		select * from galaxy where x=#{x} and y=#{y}
 	</select>
 
-	<insert id="insertGalaxy">
+	<insert id="insertGalaxy" useGeneratedKeys="true" keyProperty="id">
 		insert into
-		galaxy(id,x,y,up,down,product)values(#{id},#{x},#{y},#{up},#{down},#{product})
+		galaxy(x,y,up,down,product)values(#{x},#{y},#{up},#{down},#{product})
 	</insert>
 
 	<update id="updateGalaxy">

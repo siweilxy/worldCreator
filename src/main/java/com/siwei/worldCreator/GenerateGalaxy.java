@@ -1,10 +1,7 @@
 package com.siwei.worldCreator;
 
-import java.awt.CheckboxMenuItem;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.List;
-import java.util.Random;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -14,6 +11,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 public class GenerateGalaxy extends Thread {
 	SqlSession session;
 	GalaxyMapper galaxyMapper;
+	PlanetMapper planetMapper;
 	SqlSessionFactory sessionFactory;
 
 	public GenerateGalaxy() {
@@ -29,20 +27,47 @@ public class GenerateGalaxy extends Thread {
 			e.printStackTrace();
 		}
 		galaxyMapper = session.getMapper(GalaxyMapper.class);
+		planetMapper = session.getMapper(PlanetMapper.class);
+
 	}
 
 	private Boolean CheckItem(Galaxy galaxy) {
-		Galaxy galaxy2 = galaxyMapper.selectById(galaxy.getId());
-		if (galaxy2 != null) {
-			System.out.println("id " + galaxy2.getId() + " is already exist");
-			return false;
-		}
-
 		Galaxy galaxy3 = galaxyMapper.selectByXY(galaxy.getX(), galaxy.getY());
 		if (galaxy3 != null) {
 			System.out.println("X:" + galaxy.getX() + " Y:" + galaxy.getY() + " is already exist, new id is "
 					+ galaxy.getId() + " old id is " + galaxy3.getId());
 			return false;
+		}
+		return true;
+	}
+
+	private Boolean CheckItem(Planet planet) {
+		Planet planet3 = planetMapper.selectByXY(planet.getX(), planet.getY());
+		if (planet3 != null) {
+			System.out.println("X:" + planet.getX() + " Y:" + planet.getY() + " is already exist, new id is "
+					+ planet.getId() + " old id is " + planet3.getId());
+			return false;
+		}
+		return true;
+	}
+
+	private Galaxy GenG(ItemFactory itemFactory) {
+		Galaxy galaxy = (Galaxy) itemFactory.productItem(Galaxy.class);
+		if (!CheckItem(galaxy)) {
+			return null;
+		}
+		galaxyMapper.insertGalaxy(galaxy);
+		return galaxy;
+	}
+
+	private boolean GenP(ItemFactory itemFactory, Galaxy galaxy) {
+		for (int i = 0; i < galaxy.getProduct(); i++) {
+			Planet planet = (Planet) itemFactory.productItem(Planet.class);
+			if (!CheckItem(planet)) {
+				continue;
+			}
+			planet.setUp(String.valueOf(galaxy.getId()));
+			planetMapper.insertPlanet(planet);
 		}
 		return true;
 	}
@@ -53,20 +78,25 @@ public class GenerateGalaxy extends Thread {
 		ItemFactory itemFactory = new ItemFactory();
 		while (true) {
 			try {
-				Galaxy galaxy = (Galaxy) itemFactory.productItem(Galaxy.class);
-				session = sessionFactory.openSession();
-				if (!CheckItem(galaxy)) {
+				Galaxy galaxy = GenG(itemFactory);
+				if (galaxy == null) {
 					continue;
 				}
-				galaxyMapper.insertGalaxy(galaxy);
+
+				if (!GenP(itemFactory, galaxy)) {
+					continue;
+				}
+
 				session.commit();
+				System.out.println("generate a galaxy,has " + galaxy.getProduct() + " planets");
+				// Thread.sleep(1000);
 				Thread.sleep(3600000);
 			} catch (InterruptedException e) {
 				session.rollback();
 				e.printStackTrace();
-			} finally {
-				session.close();
-			}
+			} /*
+				 * finally { session.close(); }
+				 */
 		}
 	}
 }
