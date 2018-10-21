@@ -6,7 +6,5 @@
            
        <bean id="Sources" class="com.siwei.worldCreator.Sources">
        <property name="id" value="1"/>
-       <property name="x" value="2"/>
-       <property name="y" value="3"/>
        </bean>
 </beans>

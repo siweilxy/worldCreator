@@ -20,5 +20,6 @@
 <mapper resource="mybatis/sources.xml"/>
 <mapper resource="mybatis/galaxy.xml"/>
 <mapper resource="mybatis/planet.xml"/>
+<mapper resource="mybatis/space.xml"/>
 </mappers>
 </configuration>

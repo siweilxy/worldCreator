@@ -61,8 +61,8 @@ public abstract class Item {
 	public void setItem(int id) {
 		Random random = new Random();
 		setId(id);
-		setX(random.nextInt(1000) + 1);
-		setY(random.nextInt(1000) + 1);
+		setX(random.nextInt(1000000) + 1);
+		setY(random.nextInt(1000000) + 1);
 		setUp("");
 		setDown("");
 		setProduct(random.nextInt(100) + 1);

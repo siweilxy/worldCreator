@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.siwei.worldCreator.SpaceMapper">
+
+	<select id="selectById" resultType="Space">
+		select * from space where id
+		= #{id}
+	</select>
+
+	<select id="selectByXY" resultType="Space">
+		select * from space where x=#{x} and y=#{y}
+	</select>
+
+	<insert id="insertSpace" useGeneratedKeys="true" keyProperty="id">
+		insert into
+		space(x,y,up,down,product,height)values(#{x},#{y},#{up},#{down},#{product},#{height})
+	</insert>
+
+	<update id="updateSpace">
+	</update>
+
+	<delete id="deleteSpace">
+	</delete>
+
+	<select id="selectAllSpace" resultType="Space">
+		select * from space
+	</select>
+</mapper>
