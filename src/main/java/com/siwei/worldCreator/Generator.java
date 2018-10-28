@@ -10,6 +10,6 @@ public class Generator {
 	}
 	void run() {
 		galaxy.start();
-		//sources.start();
+		sources.start();
 	}
 }

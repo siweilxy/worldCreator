@@ -1,41 +1,23 @@
 package com.siwei.worldCreator;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Random;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class GenerateGalaxy extends Thread {
-	SqlSession session;
 	GalaxyMapper galaxyMapper;
 	PlanetMapper planetMapper;
 	SpaceMapper spaceMapper;
 	SourceMapper sourceMapper;
-	SqlSessionFactory sessionFactory;
+	SessionSql session;
 	Log log;
 
 	public GenerateGalaxy() {
 		log = LogFactory.getLog(GenerateGalaxy.class);
-		log.debug("GenerateGalaxy.GenerateGalaxy()");
-		Reader reader;
-		try {
-			reader = Resources.getResourceAsReader("mybatis-config.xml");
-			sessionFactory = new SqlSessionFactoryBuilder().build(reader);
-			session = sessionFactory.openSession();
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		galaxyMapper = session.getMapper(GalaxyMapper.class);
-		planetMapper = session.getMapper(PlanetMapper.class);
-		spaceMapper = session.getMapper(SpaceMapper.class);
-		sourceMapper = session.getMapper(SourceMapper.class);
+		session = new SessionSql();
+		galaxyMapper = session.getSession().getMapper(GalaxyMapper.class);
+		planetMapper = session.getSession().getMapper(PlanetMapper.class);
+		spaceMapper = session.getSession().getMapper(SpaceMapper.class);
+		sourceMapper = session.getSession().getMapper(SourceMapper.class);
 
 	}
 
@@ -72,8 +54,10 @@ public class GenerateGalaxy extends Thread {
 	private Galaxy GenG(ItemFactory itemFactory) {
 		Galaxy galaxy = (Galaxy) itemFactory.productItem(Galaxy.class);
 		if (!CheckItem(galaxy)) {
+			log.warn("checkGalaxy failed");
 			return null;
 		}
+		log.warn("galaxy is x: " + galaxy.getX() + " y: " + galaxy.getY()+" product is "+galaxy.getProduct());
 		galaxyMapper.insertGalaxy(galaxy);
 		return galaxy;
 	}
@@ -82,6 +66,7 @@ public class GenerateGalaxy extends Thread {
 		for (int i = 0; i < galaxy.getProduct(); i++) {
 			Planet planet = (Planet) itemFactory.productItem(Planet.class);
 			if (!CheckItem(planet)) {
+				log.warn("check planet failed");
 				continue;
 			}
 			planet.setUp(String.valueOf(galaxy.getId()));
@@ -100,7 +85,7 @@ public class GenerateGalaxy extends Thread {
 			}
 			space.setHeight();
 			space.setUp(String.valueOf(planet.getId()));
-			space.setProduct(space.getProduct()%50);
+			space.setProduct(space.getProduct() % 50);
 			spaceMapper.insertSpace(space);
 			GenerateSources(space);
 		}
@@ -123,19 +108,20 @@ public class GenerateGalaxy extends Thread {
 			try {
 				Galaxy galaxy = GenG(itemFactory);
 				if (galaxy == null) {
+					log.warn("galaxy is null");
 					continue;
 				}
 
 				if (!GenP(itemFactory, galaxy)) {
+					log.warn("GenP failed");
 					continue;
 				}
 
-				session.commit();
+				session.getSession().commit();
 				log.warn("generate a galaxy,has " + galaxy.getProduct() + " planets");
-				// Thread.sleep(1000);
-				Thread.sleep(3600000);
+				Thread.sleep(1000*10);
 			} catch (InterruptedException e) {
-				session.rollback();
+				session.getSession().rollback();
 				e.printStackTrace();
 			} /*
 				 * finally { session.close(); }

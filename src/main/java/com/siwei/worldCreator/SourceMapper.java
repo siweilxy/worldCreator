@@ -1,4 +1,4 @@
-package com.siwei.worldCreator;
+ package com.siwei.worldCreator;
 
 import java.util.List;
 
@@ -8,4 +8,5 @@ public interface SourceMapper {
 	List<Sources> selectAllSources();
 
 	Sources selectById(int id);
+	void updateSources(Sources sources);
 }
