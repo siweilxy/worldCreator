@@ -119,7 +119,7 @@ public class GenerateGalaxy extends Thread {
 
 				session.getSession().commit();
 				log.warn("generate a galaxy,has " + galaxy.getProduct() + " planets");
-				Thread.sleep(1000*10);
+				Thread.sleep(1000*60*60*24);
 			} catch (InterruptedException e) {
 				session.getSession().rollback();
 				e.printStackTrace();
