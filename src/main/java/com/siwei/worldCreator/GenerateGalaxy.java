@@ -13,12 +13,6 @@ public class GenerateGalaxy extends Thread {
 
 	public GenerateGalaxy() {
 		log = LogFactory.getLog(GenerateGalaxy.class);
-		session = new SessionSql();
-		galaxyMapper = session.getSession().getMapper(GalaxyMapper.class);
-		planetMapper = session.getSession().getMapper(PlanetMapper.class);
-		spaceMapper = session.getSession().getMapper(SpaceMapper.class);
-		sourceMapper = session.getSession().getMapper(SourceMapper.class);
-
 	}
 
 	private Boolean CheckItem(Galaxy galaxy) {
@@ -105,6 +99,11 @@ public class GenerateGalaxy extends Thread {
 		this.setName("GenerateGalaxy");
 		ItemFactory itemFactory = new ItemFactory();
 		while (true) {
+			session = new SessionSql();
+			galaxyMapper = session.getSession().getMapper(GalaxyMapper.class);
+			planetMapper = session.getSession().getMapper(PlanetMapper.class);
+			spaceMapper = session.getSession().getMapper(SpaceMapper.class);
+			sourceMapper = session.getSession().getMapper(SourceMapper.class);
 			try {
 				Galaxy galaxy = GenG(itemFactory);
 				if (galaxy == null) {
@@ -123,9 +122,10 @@ public class GenerateGalaxy extends Thread {
 			} catch (InterruptedException e) {
 				session.getSession().rollback();
 				e.printStackTrace();
-			} /*
-				 * finally { session.close(); }
-				 */
+			}finally {
+				session.getSession().commit();
+				session.getSession().close();
+			}
 		}
 	}
 }

@@ -8,7 +8,8 @@ import org.apache.commons.logging.LogFactory;
 public class GenerateSources extends Thread {
 	private Log log;
 	private SourceMapper sourceMapper;
-
+	private SessionSql sessionSql;
+	
 	public GenerateSources() {
 		log = LogFactory.getLog(GenerateSources.class);
 	}
@@ -168,16 +169,14 @@ public class GenerateSources extends Thread {
 	}
 
 	private void updateSources() {
-		SessionSql sessionSql = new SessionSql();
+		sessionSql = new SessionSql();
 		sourceMapper = sessionSql.getSession().getMapper(SourceMapper.class);
 		List<Sources> sources = sourceMapper.selectAllSources();
-		log.warn("sources size is "+ sources.size());
+		log.warn("sources size is " + sources.size());
 		for (int i = 0; i < sources.size(); i++) {
 			checkAndAddSources(sources.get(i));
 			sourceMapper.updateSources(sources.get(i));
 		}
-		sessionSql.getSession().commit();
-		sessionSql.getSession().close();
 	}
 
 	@Override
@@ -191,6 +190,9 @@ public class GenerateSources extends Thread {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} finally {
+				sessionSql.getSession().commit();
+				sessionSql.getSession().close();
 			}
 		}
 	}
